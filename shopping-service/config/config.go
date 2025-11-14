@@ -1,7 +1,9 @@
 package config
 
 import (
+	"errors"
 	"log"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -25,27 +27,35 @@ type DatabaseConfig struct {
 }
 
 func LoadConfig() (*Config, error) {
-	viper.SetConfigFile(".env")
-	viper.SetConfigType("env")
-
+	// Set defaults first
 	viper.SetDefault("PORT", "8080")
 	viper.SetDefault("MONGO_URI", "mongodb://localhost:27017")
 	viper.SetDefault("DB_NAME", "shopping_db")
 
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, err
-		}
-		log.Println("No .env file found, using defaults")
-	}
-
+	// Enable automatic environment variable reading
 	viper.AutomaticEnv()
+
+	// Try to read .env file (optional - don't fail if not found)
+	viper.SetConfigFile(".env")
+	viper.SetConfigType("env")
+
+	if err := viper.ReadInConfig(); err != nil {
+		// Check if it's a file not found error
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) {
+			log.Println("No .env file found, using environment variables and defaults")
+		} else if errors.Is(err, os.ErrNotExist) {
+			log.Println("No .env file found, using environment variables and defaults")
+		} else {
+			// For other errors, log but don't fail (use env vars instead)
+			log.Printf("Warning: Error reading .env file: %v, using environment variables and defaults", err)
+		}
+	}
 
 	var config Config
 	config.Server.Port = viper.GetString("PORT")
 	config.Database.MongoURI = viper.GetString("MONGO_URI")
 	config.Database.DBName = viper.GetString("DB_NAME")
-
 	config.PaymentService.BaseURI = viper.GetString("PAYMENT_SERVICE_BASE_URI")
 
 	return &config, nil
