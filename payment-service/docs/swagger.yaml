@@ -1,0 +1,52 @@
+basePath: /
+definitions:
+  models.PaymentRequest:
+    properties:
+      amount:
+        type: number
+    required:
+    - amount
+    type: object
+  models.PaymentResponse:
+    properties:
+      amount:
+        type: number
+      id:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: API documentation for Payment Service
+  title: Payment Service API
+  version: "1.0"
+paths:
+  /payments:
+    post:
+      consumes:
+      - application/json
+      description: Add a new payment to the database
+      parameters:
+      - description: Payment data (amount)
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/models.PaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.PaymentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new payment
+      tags:
+      - payments
+swagger: "2.0"
