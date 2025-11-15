@@ -1,2 +1,3 @@
-http://178.128.208.34:8080/swagger//index.html
-http://178.128.208.34:8081/swagger//index.html
+http://178.128.208.34:9051/swagger//index.html
+http://178.128.208.34:9061/swagger//index.html
+

@@ -3,7 +3,7 @@ services:
     image: mongo:7
     container_name: mongodb
     ports:
-      - "27017:27017"
+      - "9071:27017"
     volumes:
       - mongodb_data:/data/db
     environment:
@@ -11,30 +11,30 @@ services:
 
   payment-service:
     build:
-      context: ./payment-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.paymentserver
     container_name: payment-service
     ports:
-      - "8081:8081"
+      - "9061:9061"
     environment:
-      - PORT=8081
+      - PORT_PAYMENT=9061
       - MONGO_URI=mongodb://mongodb:27017
-      - DB_NAME=payment_db
+      - PAYMENT_DB_NAME=payment_db
     depends_on:
       - mongodb
 
   shopping-service:
     build:
-      context: ./shopping-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.httpserver
     container_name: shopping-service
     ports:
-      - "8080:8080"
+      - "9051:9051"
     environment:
-      - PORT=8080
+      - PORT_SHOPPING=9051
       - MONGO_URI=mongodb://mongodb:27017
-      - DB_NAME=shopping_db
-      - PAYMENT_SERVICE_BASE_URI=http://payment-service:8081
+      - SHOPPING_DB_NAME=shopping_db
+      - PAYMENT_SERVICE_BASE_URI=http://payment-service:9061
     depends_on:
       - mongodb
       - payment-service
